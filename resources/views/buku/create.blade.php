@@ -22,7 +22,7 @@
 <body>
     <br>
     <div class="container">
-        <h2 class="mt-2" align="center">Tambah Buku</h2>
+    <h2 class="mt-2" align="center">Tambah Buku</h2>
         <br>
         <form method="post" action="{{ route('buku.store') }}">
             @csrf

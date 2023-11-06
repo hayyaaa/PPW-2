@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Buku; //memanggil model Buku.php, yang didalamnya ada definisi tabel yang digunakan, yaitu tabel buku.
 
 class BukuController extends Controller
-{
+{   
     //fungsi index
     public function index() {
         $data_buku = Buku::all();
@@ -56,14 +56,16 @@ class BukuController extends Controller
         $buku->penulis = $request->penulis;
         $buku->harga = $request->harga;
         $buku->tgl_terbit = date('Y-m-d', strtotime($request->tgl_terbit));
-        $buku->save(); 
-
+        
         $this->validate($request,[
             'judul' => 'required|string',
             'penulis' => 'required|string|max:30',
             'harga' => 'required|numeric',
             'tgl_terbit' => 'required|date'
         ]);
+
+        $buku->save(); 
+
         return redirect('/buku')->with('pesan','Data buku berhasil disimpan.');
     }
 

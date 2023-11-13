@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Buku; //memanggil model Buku.php, yang didalamnya ada definisi tabel yang digunakan, yaitu tabel buku.
+use Intervention\Image\Facades\Image;
+use App\Models\Gallery;
 
 class BukuController extends Controller
 {   
@@ -64,7 +66,32 @@ class BukuController extends Controller
             'tgl_terbit' => 'required|date'
         ]);
 
+        $request->validate([
+            'thumbnail' => 'image|mimes:jpeg,jpg,png'
+        ]);
+
+        $fileName = time().'_'.$request->thumbnail->getClientOriginalName();
+        $filePath = $request->file('thumbnail')->storeAs('uploads', $fileName, 'public');
+        $buku -> filename = $fileName;
+        $buku -> filepath = '/storage/' . $filePath;
+
+        Image::make(storage_path().'/app/public/uploads/'.$fileName)->fit(140,220)->save();
+
         $buku->save(); 
+
+        if ($request->file('gallery')) {
+            foreach($request->file('gallery') as $key => $file) {
+                $fileName = time().'_'.$file->getClientOriginalName();
+                $filePath = $file->storeAs('uploads', $fileName, 'public');
+
+                $gallery = Gallery::create([
+                    'nama_galeri'   => $fileName,
+                    'path'          => '/storage/' . $filePath,
+                    'foto'          => $fileName,
+                    'buku_id'       => $buku -> id
+                ]);
+            }
+        }
 
         return redirect('/buku')->with('pesan','Data buku berhasil disimpan.');
     }
@@ -83,12 +110,95 @@ class BukuController extends Controller
 
     public function update(Request $request, $id) {
         $buku = Buku::find($id);
-        $buku->update([
-            'judul' => $request->judul,
-            'penulis' => $request->penulis,
-            'harga' => $request->harga,
-            'tgl_terbit' => $request->tgl_terbit
-        ]);
+
+        if ($request->file('thumbnail')) {
+            $request->validate([
+                'thumbnail' => 'image|mimes:jpeg,jpg,png'
+            ]);
+
+            $fileName = time().'_'.$request->thumbnail->getClientOriginalName();
+            $filePath = $request->file('thumbnail')->storeAs('uploads', $fileName, 'public');
+
+            Image::make(storage_path().'/app/public/uploads/'.$fileName)->fit(240,320)->save();
+        }
+
+        if ($request->file('gallery')) {
+            foreach($request->file('gallery') as $key => $file) {
+                $fileName = time().'_'.$file->getClientOriginalName();
+                $filePath = $file->storeAs('uploads', $fileName, 'public');
+
+                $gallery = Gallery::create([
+                    'nama_galeri' => $fileName,
+                    'path' => '/storage/'. $filePath,
+                    'foto' => $fileName,
+                    'buku_id' => $id
+                ]);
+            }
+        }
+
+        if ($request->file('thumbnail')) {
+            $buku->update([
+                'judul' => $request->judul,
+                'penulis' => $request->penulis,
+                'harga' => $request->harga,
+                'tgl_terbit' => $request->tgl_terbit,
+                'filename' => $fileName,
+                'filepath' => '/storage/' . $filePath
+            ]);
+        } else {
+            if ($buku->filepath) {
+                $buku->update([
+                    'judul' => $request->judul,
+                    'penulis' => $request->penulis,
+                    'harga' => $request->harga,
+                    'tgl_terbit' => $request->tgl_terbit,
+                    'filename' => $buku->filename,
+                    'filepath' => $buku->filepath
+                ]);
+            }
+        }
         return redirect('/buku')->with('pesan','Data buku berhasil diubah');
+    }
+
+        //     $request->validate([
+        //     'thumbnail' => 'image|mimes:jpeg,jpg,png|max:2048'
+        // ]);
+
+        // $fileName = time().'_'.$request->thumbnail->getClientOriginalName();
+        // $filePath = $request->file('thumbnail')->storeAs('uploads', $fileName, 'public');
+
+        // Image::make(storage_path().'/app/public/uploads/'.$fileName)
+        //     ->fit(240,320)
+        //     ->save();
+
+        // $buku->update([
+        //     'judul' => $request->judul,
+        //     'penulis' => $request->penulis,
+        //     'harga' => $request->harga,
+        //     'tgl_terbit' => $request->tgl_terbit,
+        //     'filename' => $fileName,
+        //     'filepath' => '/storage/' . $filePath
+        // ]);
+
+        // // if ($request->file('gallery')) {
+        // //     foreach($request->file('gallery') as $key => $file) {
+        // //         $fileName = time().'_'.$file->getClientOriginalName();
+        // //         $filePath = $file->storeAs('uploads', $fileName, 'public');
+
+        // //         $gallery = Gallery::create([
+        // //             'nama_galeri'   => $fileName,
+        // //             'path'          => '/storage/' . $filePath,
+        // //             'foto'          => $fileName,
+        // //             'buku_id'       => $id
+        // //         ]);
+        // //     }
+        // // }
+
+    public function deleteGallery($id) {
+        $gallery = Gallery::findOrFail($id);
+
+        $gallery->delete();
+
+        return redirect()->back();
     }
 }

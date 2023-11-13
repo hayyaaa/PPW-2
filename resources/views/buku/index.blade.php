@@ -17,10 +17,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css">
 </head>
 <body>
-    <br>
-    <h2 align="center">Daftar Buku</h2>
-    <br>
-    <div class="container mt-2">
+    <br><br>
+    <div class="container mt-2 bg-white"><br><br>
+    <h2 align="center">Daftar Buku</h2><br>
         <div class="flex justify-between items-center">
             <a href="{{ route('buku.create') }}" class="btn btn-primary">Tambah Buku</a>
             <form action="{{ route('buku.search') }}" method="get" class="flex items-center">
@@ -32,6 +31,7 @@
             <thead>
                 <tr>
                     <th>id</th>
+                    <th>Thumbnail</th>
                     <th>Judul Buku</th>
                     <th>Penulis</th>
                     <th>Harga</th>
@@ -43,6 +43,13 @@
                 @foreach($data_buku as $buku)
                 <tr>
                     <td>{{ $buku->id }}</td>
+                    <td>
+                        @if($buku->filepath)
+                            <div class="relative">
+                                <img class="h-full w-full object-cover object-center" src="{{ asset($buku->filepath) }}" alt=""/>
+                            </div>
+                        @endif
+                    </td>
                     <td>{{ $buku->judul }}</td>
                     <td>{{ $buku->penulis }}</td>
                     <td>{{ "Rp ".number_format($buku->harga, 2, ',', '.') }}</td>

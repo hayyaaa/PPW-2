@@ -19,11 +19,16 @@
     @endif
 
     <title>Daftar Buku</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body>
     <div class="container mt-2">
-        <p align="right"><a href="{{ route('buku.create') }}" class="btn btn-primary">Tambah Buku</a></p>
+        @if (Auth::check() && Auth::user()->level == 'admin')
+            <a href="{{ route('buku.create') }}" class="btn btn-primary">Tambah Buku</i></a>
+        @endif
+        <!-- <p align="right"><a href="{{ route('buku.create') }}" class="btn btn-primary">Tambah Buku</a></p> -->
         <form action="{{ route('buku.search') }}" method="get">@csrf
             <input type="text" name="kata" class="form-control" placeholder="Cari..." style="width: 30%;
         display: inline; margin-top: 10px; margin-bottom: 10px; float: right;">
@@ -49,6 +54,7 @@
                     <td>{{ "Rp ".number_format($buku->harga, 2, ',', '.') }}</td>
                     <td>{{ $buku->tgl_terbit }}</td>
                     <td>
+                    @if (Auth::check() && Auth::user()->role == 'admin')
                         <form action="{{ route('buku.destroy', $buku->id) }}" method="post">
                             @csrf
                             <button onclick="return confirm('Apakah yakin ingin menghapus data?')" class="btn btn-danger">Hapus</button>
@@ -59,6 +65,12 @@
                             @csrf
                             <button type="submit" class="btn btn-primary">Edit</button>
                         </form>
+                    @endif
+
+                    <form class="col-3 align-items-center">
+                            @csrf
+                            <a href="{{ route('buku.detail', $buku->judul) }}" class="btn btn-sm btn-warning"><i class="fas fa-eye fa-inverse"></i> </a>
+                    </form>
                     </td>
                 </tr>
                 @endforeach

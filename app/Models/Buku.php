@@ -33,4 +33,27 @@ class Buku extends Model
     {
         return $this->belongsToMany(User::class, 'favorite', 'buku_id', 'user_id');
     }
+
+    public static function getPopularBooks($limit = 10)
+    {
+    return self::with('rating') // Eager load ratings relationship
+        ->orderByDesc('averageRate') // Order by average rating in descending order
+        ->limit($limit)
+        ->get();
+    }
+
+    public function kategori()
+    {
+        return $this->belongsToMany(Kategori::class, 'buku_kategori');
+    }
+
+    // public function popularBooks() 
+    // {
+    //     $popularBooks = Buku::with('rating') 
+    //                       ->orderByDesc('averageRate')
+    //                       ->take(10)
+    //                       ->get();
+    
+    //     return view('buku.popular', compact('popularBooks'));
+    // }
 }

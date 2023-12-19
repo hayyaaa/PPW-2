@@ -254,6 +254,13 @@ class BukuController extends Controller
         $buku->favoritedBy()->attach(auth()->user()->id);
         return redirect("/buku/myfavorite")->with('success', 'Buku ditambahkan ke favorit.');
     }
+
+    public function popular(Request $request, $id)
+    {
+        $popularBooks = Buku::getPopularBooks();
+
+        return view('buku.popular', compact('popularBooks'));
+    }
 }
 
 //     public function show(string $id)

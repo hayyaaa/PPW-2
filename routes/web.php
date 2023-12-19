@@ -48,6 +48,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/buku/myfavourite/', [BukuController::class, 'favbuku'])->name('buku.favourite');
     Route::post('/buku/{id}/rate', [BukuController::class, 'rate'])->name('buku.rate');
 
+    Route::get('/buku-populer', [BukuController::class, 'popularBooks'])->name('buku.popular');
+
+    // Route::get('/buku/popular', [BukuController::class, 'popularBooks'])->name('buku.popular');
+
+
     // Route::get('/buku', [BukuController::class, 'index']);
     // Route::get('/buku/search', [BukuController::class, 'search'])->name('buku.search');
 });
